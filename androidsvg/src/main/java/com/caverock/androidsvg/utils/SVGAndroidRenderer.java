@@ -133,14 +133,14 @@ public class SVGAndroidRenderer
    private static final java.util.regex.Pattern PATTERN_END_SPACES = java.util.regex.Pattern.compile("\\s+$");
    private static final java.util.regex.Pattern PATTERN_DOUBLE_SPACES = java.util.regex.Pattern.compile("\\s{2,}");
 
-   private final Canvas   canvas;
+   public final Canvas   canvas;
    private final float    dpi;    // dots per inch. Needed for accurate conversion of length values that have real world units, such as "cm".
 
    // Renderer state
    private SVGBase document;
    private RendererState        state;
    private Stack<RendererState> stateStack;  // Keeps track of render state as we render
-   
+
    // Keep track of element stack while rendering.
    private Stack<SvgContainer>  parentStack; // The 'render parent' for elements like Symbol cf. file parent
    private Stack<Matrix>        matrixStack; // Keeps track of current transform as we descend into element tree
@@ -304,7 +304,7 @@ public class SVGAndroidRenderer
    /*
     * Render the whole document.
     */
-   void  renderDocument(SVGBase document, RenderOptionsBase renderOptions)
+   public void  renderDocument(SVGBase document, RenderOptionsBase renderOptions)
    {
       if (renderOptions == null)
          throw new NullPointerException("renderOptions shouldn't be null");  // Sanity check. Should never happen
@@ -388,8 +388,11 @@ public class SVGAndroidRenderer
    // Render dispatcher
 
 
+   public SvgObject currentRenderingSvgObject;
    private void  render(SvgObject obj)
    {
+      currentRenderingSvgObject = obj;
+
       if (obj instanceof NotDirectlyRendered)
          return;
 
@@ -610,7 +613,7 @@ public class SVGAndroidRenderer
          // Render the transformed path. The stroke width used will be in unscaled device units.
          canvas.drawPath(transformedPath, state.strokePaint);
 
-         // Return the current canvas transform to what it was before all this happened         
+         // Return the current canvas transform to what it was before all this happened
          canvas.setMatrix(currentMatrix);
          // And reset the shader matrix also
          if (shader != null)
@@ -796,10 +799,10 @@ public class SVGAndroidRenderer
          // Finally, find the bounding box of the transformed points
          RectF  rect = new RectF(pts[0], pts[1], pts[0], pts[1]);
          for (int i=2; i<=6; i+=2) {
-            if (pts[i] < rect.left) rect.left = pts[i]; 
-            if (pts[i] > rect.right) rect.right = pts[i]; 
-            if (pts[i+1] < rect.top) rect.top = pts[i+1]; 
-            if (pts[i+1] > rect.bottom) rect.bottom = pts[i+1]; 
+            if (pts[i] < rect.left) rect.left = pts[i];
+            if (pts[i] > rect.right) rect.right = pts[i];
+            if (pts[i+1] < rect.top) rect.top = pts[i+1];
+            if (pts[i+1] > rect.bottom) rect.bottom = pts[i+1];
          }
          // Update the parent bounding box with the transformed bbox
          SvgElement  parent = (SvgElement) parentStack.peek();
@@ -1037,7 +1040,7 @@ public class SVGAndroidRenderer
                   continue ChildLoop;
             }
          }
-         
+
          // All checks passed!  Render this one element and exit
          render(child);
          break;
@@ -1053,14 +1056,14 @@ public class SVGAndroidRenderer
       // Actual feature strings have the prefix: FEATURE_STRING_PREFIX (see above)
       // NO indicates feature will probable not ever be implemented
       // NYI indicates support is in progress, or is planned
-      
+
       // Feature sets that represent sets of other feature strings (ie a group of features strings)
       //supportedFeatures.add("SVG");                       // NO
       //supportedFeatures.add("SVGDOM");                    // NO
       //supportedFeatures.add("SVG-static");                // NO
       //supportedFeatures.add("SVGDOM-static");             // NO
       //supportedFeatures.add("SVG-animation");             // NO
-      //supportedFeatures.add("SVGDOM-animation");          // NO 
+      //supportedFeatures.add("SVGDOM-animation");          // NO
       //supportedFeatures.add("SVG-dynamic");               // NO
       //supportedFeatures.add("SVGDOM-dynamic");            // NO
 
@@ -1079,7 +1082,7 @@ public class SVGAndroidRenderer
       supportedFeatures.add("PaintAttribute");              // YES (except color-interpolation and color-rendering)
       supportedFeatures.add("BasicPaintAttribute");         // YES (except color-rendering)
       supportedFeatures.add("OpacityAttribute");            // YES
-      //supportedFeatures.add("GraphicsAttribute");         // NO     
+      //supportedFeatures.add("GraphicsAttribute");         // NO
       supportedFeatures.add("BasicGraphicsAttribute");      // YES
       supportedFeatures.add("Marker");                      // YES
       //supportedFeatures.add("ColorProfile");              // NO
@@ -1221,7 +1224,7 @@ public class SVGAndroidRenderer
 
       checkForGradientsAndPatterns(obj);
       checkForClipPath(obj);
-      
+
       boolean  compositing = pushLayer();
 
       if (state.hasFill) {
@@ -1443,7 +1446,7 @@ public class SVGAndroidRenderer
 
       checkForGradientsAndPatterns(obj);
       checkForClipPath(obj);
-      
+
       boolean  compositing = pushLayer();
 
       if (state.hasFill)
@@ -1525,7 +1528,7 @@ public class SVGAndroidRenderer
 
       checkForGradientsAndPatterns(obj);
       checkForClipPath(obj);
-      
+
       boolean  compositing = pushLayer();
 
       if (state.hasFill)
@@ -1583,7 +1586,7 @@ public class SVGAndroidRenderer
 
       checkForGradientsAndPatterns(obj);
       checkForClipPath(obj);
-      
+
       boolean  compositing = pushLayer();
 
       enumerateTextSpans(obj, new PlainTextDrawer(x + dx, y + dy));
@@ -1749,7 +1752,7 @@ public class SVGAndroidRenderer
          // Save state
          statePush();
 
-         TSpan tspan = (TSpan) obj; 
+         TSpan tspan = (TSpan) obj;
 
          updateStyleForElement(state, tspan);
 
@@ -1803,7 +1806,7 @@ public class SVGAndroidRenderer
          // Save state
          statePush();
 
-         TRef tref = (TRef) obj; 
+         TRef tref = (TRef) obj;
 
          updateStyleForElement(state, tref);
 
@@ -1878,7 +1881,7 @@ public class SVGAndroidRenderer
       }
 
       checkForGradientsAndPatterns((SvgElement) obj.getTextRoot());
-      
+
       boolean  compositing = pushLayer();
 
       enumerateTextSpans(obj, new PathTextDrawer(path, startOffset, 0f));
@@ -2046,7 +2049,7 @@ public class SVGAndroidRenderer
          isFirstChild = false;
       }
    }
- 
+
 
    //==============================================================================
 
@@ -2096,7 +2099,7 @@ public class SVGAndroidRenderer
          canvas.translate(state.viewPort.minX, state.viewPort.minY);
          state.viewBox = null;
       }
-      
+
       boolean  compositing = pushLayer();
 
       renderChildren(obj, true);
@@ -2233,12 +2236,12 @@ public class SVGAndroidRenderer
    /*
     * Calculate the transform required to fit the supplied viewBox into the current viewPort.
     * See spec section 7.8 for an explanation of how this works.
-    * 
+    *
     * aspectRatioRule determines where the graphic is placed in the viewPort when aspect ration
     *    is kept.  xMin means left justified, xMid is centred, xMax is right justified etc.
     * slice determines whether we see the whole image or not. True fill the whole viewport.
     *    If slice is false, the image will be "letter-boxed".
-    * 
+    *
     * Note values in the two Box parameters whould be in user units. If you pass values
     * that are in "objectBoundingBox" space, you will get incorrect results.
     */
@@ -2266,7 +2269,7 @@ public class SVGAndroidRenderer
       // Otherwise, the aspect ratio of the image is kept.
       // What scale are we going to use?
       float  scale = (positioning.getScale() == PreserveAspectRatio.Scale.slice) ? Math.max(xScale,  yScale) : Math.min(xScale,  yScale);
-      // What size will the image end up being? 
+      // What size will the image end up being?
       float  imageW = viewPort.width / scale;
       float  imageH = viewPort.height / scale;
       // Determine final X position
@@ -2283,7 +2286,7 @@ public class SVGAndroidRenderer
             xOffset -= (viewBox.width - imageW);
             break;
          default:
-            // nothing to do 
+            // nothing to do
             break;
       }
       // Determine final Y position
@@ -2300,7 +2303,7 @@ public class SVGAndroidRenderer
             yOffset -= (viewBox.height - imageH);
             break;
          default:
-            // nothing to do 
+            // nothing to do
             break;
       }
 
@@ -2832,7 +2835,7 @@ public class SVGAndroidRenderer
    {
       final Path   path = new Path();
       float  lastX, lastY;
-      
+
       PathConverter(PathDefinition pathDef)
       {
          if (pathDef == null)
@@ -2890,7 +2893,7 @@ public class SVGAndroidRenderer
       {
          path.close();
       }
-         
+
    }
 
 
@@ -2902,7 +2905,7 @@ public class SVGAndroidRenderer
     * This is to be consistent with the other path commands.  However we need to convert this to "centre point
     * parameterisation" in order to calculate the arc. Handily, the SVG spec provides all the required maths
     * in section "F.6 Elliptical arc implementation notes".
-    * 
+    *
     * Some of this code has been borrowed from the Batik library (Apache-2 license).
     *
     * Previously, to work around issue #62, we converted this function to use floats. However in issue #155,
@@ -3056,13 +3059,13 @@ public class SVGAndroidRenderer
     * Generate the control points and endpoints for a set of bezier curves that match
     * a circular arc starting from angle 'angleStart' and sweep the angle 'angleExtent'.
     * The circle the arc follows will be centred on (0,0) and have a radius of 1.0.
-    * 
+    *
     * Each bezier can cover no more than 90 degrees, so the arc will be divided evenly
     * into a maximum of four curves.
-    * 
+    *
     * The resulting control points will later be scaled and rotated to match the final
     * arc required.
-    * 
+    *
     * The returned array has the format [x0,y0, x1,y1,...] and excludes the start point
     * of the arc.
     */
@@ -3071,10 +3074,10 @@ public class SVGAndroidRenderer
       int    numSegments = (int) Math.ceil(Math.abs(angleExtent) * 2.0 / Math.PI);  // (angleExtent / 90deg)
 
       double  angleIncrement = angleExtent / numSegments;
-      
+
       // The length of each control point vector is given by the following formula.
       double  controlLength = 4.0 / 3.0 * Math.sin(angleIncrement / 2.0) / (1.0 + Math.cos(angleIncrement / 2.0));
-      
+
       float[] coords = new float[numSegments * 6];
       int     pos = 0;
 
@@ -3169,7 +3172,7 @@ public class SVGAndroidRenderer
          return "("+x+","+y+" "+dx+","+dy+")";
       }
    }
-   
+
 
    /*
     *  Calculates the positions and orientations of any markers that should be placed on the given path.
@@ -3184,7 +3187,7 @@ public class SVGAndroidRenderer
       private int                 subpathStartIndex = -1;
       private boolean             closepathReAdjustPending;
 
-      
+
       MarkerPositionCalculator(PathDefinition pathDef)
       {
          if (pathDef == null)
@@ -3284,7 +3287,7 @@ public class SVGAndroidRenderer
          // See description of "orient" attribute in section 11.6.2.
          closepathReAdjustPending = true;
       }
-         
+
    }
 
 
@@ -3336,7 +3339,7 @@ public class SVGAndroidRenderer
       if (markerCount == 0)
          return;
 
-      // We don't want the markers to inherit themselves as markers, otherwise we get infinite recursion. 
+      // We don't want the markers to inherit themselves as markers, otherwise we get infinite recursion.
       state.style.markerStart = state.style.markerMid = state.style.markerEnd = null;
 
       if (_markerStart != null)
@@ -3479,7 +3482,7 @@ public class SVGAndroidRenderer
                xOffset -= (_markerWidth - imageW);
                break;
             default:
-               // nothing to do 
+               // nothing to do
                   break;
          }
          // Determine final Y position
@@ -3496,7 +3499,7 @@ public class SVGAndroidRenderer
                yOffset -= (_markerHeight - imageH);
                break;
             default:
-               // nothing to do 
+               // nothing to do
                break;
          }
 
@@ -3556,7 +3559,7 @@ public class SVGAndroidRenderer
             break;
          obj = (SvgObject) obj.parent;
       }
-      
+
       // Now apply the ancestor styles in reverse order to a fresh RendererState object
       for (SvgElementBase ancestor: ancestors)
          updateStyleForElement(newState, ancestor);
@@ -3718,7 +3721,7 @@ public class SVGAndroidRenderer
          else if (gradient.spreadMethod == GradientSpread.repeat)
             tileMode = TileMode.REPEAT;
       }
-      
+
       statePop();
 
       // Create shader instance
@@ -3988,7 +3991,7 @@ public class SVGAndroidRenderer
            setPaintColour(state, isFill, state.style.stroke);
         }
       }
-      
+
    }
 
 
@@ -4410,7 +4413,7 @@ public class SVGAndroidRenderer
       }
 
       checkForClipPath(obj);
-      
+
       addObjectToClip(ref, false, combinedPath, combinedPathMatrix);
    }
 
@@ -4565,7 +4568,7 @@ public class SVGAndroidRenderer
       else
       {
          // Rounded rect
-         
+
          // Bezier control point lengths for a 90 degree arc
          float  cpx = rx * BEZIER_ARC_FACTOR;
          float  cpy = ry * BEZIER_ARC_FACTOR;
@@ -4770,7 +4773,7 @@ public class SVGAndroidRenderer
       if (pattern.patternTransform != null)
       {
          canvas.concat(pattern.patternTransform);
-         
+
          // A pattern transform will affect the area we need to cover with the pattern.
          // So we need to alter the area bounding rectangle.
          Matrix inverse = new Matrix();
@@ -4780,13 +4783,13 @@ public class SVGAndroidRenderer
                            obj.boundingBox.maxX(), obj.boundingBox.maxY(),
                            obj.boundingBox.minX, obj.boundingBox.maxY()};
             inverse.mapPoints(pts);
-            // Find the bounding box of the shape created by the inverse transform 
+            // Find the bounding box of the shape created by the inverse transform
             RectF  rect = new RectF(pts[0], pts[1], pts[0], pts[1]);
             for (int i=2; i<=6; i+=2) {
-               if (pts[i] < rect.left) rect.left = pts[i]; 
-               if (pts[i] > rect.right) rect.right = pts[i]; 
-               if (pts[i+1] < rect.top) rect.top = pts[i+1]; 
-               if (pts[i+1] > rect.bottom) rect.bottom = pts[i+1]; 
+               if (pts[i] < rect.left) rect.left = pts[i];
+               if (pts[i] > rect.right) rect.right = pts[i];
+               if (pts[i+1] < rect.top) rect.top = pts[i+1];
+               if (pts[i+1] > rect.bottom) rect.bottom = pts[i+1];
             }
             patternArea = new Box(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
          }

@@ -49,17 +49,17 @@ import java.util.Set;
  * <p>
  * Typically, you will call one of the SVG loading and parsing classes then call the renderer,
  * passing it a canvas to draw upon.
- * 
+ *
  * <h3>Usage summary</h3>
- * 
+ *
  * <ul>
  * <li>Use one of the static {@code getFromX()} methods to read and parse the SVG file.  They will
  * return an instance of this class.
  * <li>Call one of the {@code renderToX()} methods to render the document.
  * </ul>
- * 
+ *
  * <h3>Usage example</h3>
- * 
+ *
  * <pre>
  * {@code
  * SVG.registerExternalFileResolver(myResolver);
@@ -73,7 +73,7 @@ import java.util.Set;
  * svg.renderToCanvas(bmcanvas);
  * }
  * </pre>
- * 
+ *
  * For more detailed information on how to use this library, see the documentation at {@code http://code.google.com/p/androidsvg/}
  */
 
@@ -582,6 +582,18 @@ public class SVGBase
       renderer.renderDocument(this, renderOptions);
    }
 
+   public void renderToCanvas(SVGAndroidRenderer renderer){
+      Canvas canvas = renderer.canvas;
+      RenderOptions renderOptions = new RenderOptions();
+
+      renderOptions.viewPort(0f, 0f, (float) canvas.getWidth(), (float) canvas.getHeight());
+
+      renderer.renderDocument(this, renderOptions);
+   }
+
+   public SVGAndroidRenderer getRendererFor(Canvas canvas){
+       return new SVGAndroidRenderer(canvas, this.renderDPI, externalFileResolver);
+   }
 
    /**
     * Renders this SVG document to a Canvas object.
@@ -1033,7 +1045,7 @@ public class SVGBase
    {
       Length  w = this.rootElement.width;
       Length  h = this.rootElement.height;
-      
+
       if (w == null || w.isZero() || w.unit== Unit.percent || w.unit== Unit.em || w.unit== Unit.ex)
          return new Box(-1,-1,-1,-1);
 
@@ -1149,7 +1161,7 @@ public class SVGBase
    public static class Colour extends SvgPaint
    {
       final int colour;
-      
+
       static final Colour BLACK = new Colour(0xff000000);  // Black singleton - a common default value.
       static final Colour TRANSPARENT = new Colour(0);     // Transparent black
 
@@ -1157,7 +1169,7 @@ public class SVGBase
       {
          this.colour = val;
       }
-      
+
       public String toString()
       {
          return String.format("#%08x", colour);
@@ -1169,11 +1181,11 @@ public class SVGBase
    static class CurrentColor extends SvgPaint
    {
       private final static CurrentColor  instance = new CurrentColor();
-      
+
       private CurrentColor()
       {
       }
-      
+
       static CurrentColor  getInstance()
       {
          return instance;
@@ -1185,13 +1197,13 @@ public class SVGBase
    {
       final String    href;
       final SvgPaint  fallback;
-      
+
       PaintReference(String href, SvgPaint fallback)
       {
          this.href = href;
          this.fallback = fallback;
       }
-      
+
       public String toString()
       {
          return href + " " + fallback;
@@ -1345,7 +1357,7 @@ public class SVGBase
       final Length  right;
       final Length  bottom;
       final Length  left;
-      
+
       CSSClipRect(Length top, Length right, Length bottom, Length left)
       {
          this.top = top;
@@ -1375,13 +1387,15 @@ public class SVGBase
 
 
    // Any object in the tree that corresponds to an SVG element
-   static abstract class SvgElementBase extends SvgObject
+   public static abstract class SvgElementBase extends SvgObject
    {
       String        id = null;
       Boolean       spacePreserve = null;
       Style         baseStyle = null;   // style defined by explicit style attributes in the element (eg. fill="black")
       Style         style = null;       // style expressed in a 'style' attribute (eg. style="fill:black")
       List<String>  classNames = null;  // contents of the 'class' attribute
+
+      public String data = null;
 
       public String  toString()
       {
@@ -1391,7 +1405,7 @@ public class SVGBase
 
 
    // Any object in the tree that corresponds to an SVG element
-   static abstract class SvgElement extends SvgElementBase
+   public static abstract class SvgElement extends SvgElementBase
    {
       Box     boundingBox = null;
    }
@@ -1582,7 +1596,7 @@ public class SVGBase
    }
 
 
-   static class Path extends GraphicsElement
+   public static class Path extends GraphicsElement
    {
       PathDefinition  d;
       Float           pathLength;
@@ -1592,7 +1606,7 @@ public class SVGBase
    }
 
 
-   static class Rect extends GraphicsElement
+   public static class Rect extends GraphicsElement
    {
       Length  x;
       Length  y;
@@ -1606,7 +1620,7 @@ public class SVGBase
    }
 
 
-   static class Circle extends GraphicsElement
+   public static class Circle extends GraphicsElement
    {
       Length  cx;
       Length  cy;
@@ -1617,7 +1631,7 @@ public class SVGBase
    }
 
 
-   static class Ellipse extends GraphicsElement
+   public static class Ellipse extends GraphicsElement
    {
       Length  cx;
       Length  cy;
@@ -1629,7 +1643,7 @@ public class SVGBase
    }
 
 
-   static class Line extends GraphicsElement
+   public static class Line extends GraphicsElement
    {
       Length  x1;
       Length  y1;
@@ -1661,14 +1675,14 @@ public class SVGBase
    interface  TextRoot
    {
    }
-   
+
 
    interface  TextChild
    {
       void      setTextRoot(TextRoot obj);
       TextRoot  getTextRoot();
    }
-   
+
 
    public static abstract class  TextContainer extends SvgConditionalContainer
    {
@@ -1721,12 +1735,12 @@ public class SVGBase
       String  text;
 
       private TextRoot   textRoot;
-      
+
       public TextSequence(String text)
       {
          this.text = text;
       }
-      
+
       public String  toString()
       {
          return "TextChild: '"+text+"'";

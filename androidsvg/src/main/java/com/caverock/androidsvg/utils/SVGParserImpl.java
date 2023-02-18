@@ -1269,7 +1269,7 @@ class SVGParserImpl implements SVGParser
       currentElement = obj;
    }
 
-   
+
    private void  parseAttributesSVG(SVGBase.Svg obj, Attributes attributes) throws SVGParseException
    {
       for (int i=0; i<attributes.getLength(); i++)
@@ -1523,7 +1523,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesPath(obj, attributes);
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1567,7 +1567,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesRect(obj, attributes);
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1629,7 +1629,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesCircle(obj, attributes);
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1676,7 +1676,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesEllipse(obj, attributes);
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1728,7 +1728,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesLine(obj, attributes);
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1776,7 +1776,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesPolyLine(obj, attributes, "polyline");
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -1833,7 +1833,7 @@ class SVGParserImpl implements SVGParser
       parseAttributesTransform(obj, attributes);
       parseAttributesConditional(obj, attributes);
       parseAttributesPolyLine(obj, attributes, "polygon"); // reuse of polyline "points" parser
-      currentElement.addChild(obj);     
+      currentElement.addChild(obj);
    }
 
 
@@ -2034,7 +2034,7 @@ class SVGParserImpl implements SVGParser
       currentElement = obj;
    }
 
-   
+
    //=========================================================================
    // <marker> element
 
@@ -2088,7 +2088,7 @@ class SVGParserImpl implements SVGParser
                   obj.markerUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute markerUnits");
-               } 
+               }
                break;
             case orient:
                if ("auto".equals(val)) {
@@ -2140,7 +2140,7 @@ class SVGParserImpl implements SVGParser
                   obj.gradientUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute gradientUnits");
-               } 
+               }
                break;
             case gradientTransform:
                obj.gradientTransform = parseTransformList(val);
@@ -2149,7 +2149,7 @@ class SVGParserImpl implements SVGParser
                try
                {
                   obj.spreadMethod = GradientSpread.valueOf(val);
-               } 
+               }
                catch (IllegalArgumentException e)
                {
                   throw new SVGParseException("Invalid spreadMethod attribute. \""+val+"\" is not a valid value.");
@@ -2467,7 +2467,7 @@ class SVGParserImpl implements SVGParser
                   obj.patternUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute patternUnits");
-               } 
+               }
                break;
             case patternContentUnits:
                if ("objectBoundingBox".equals(val)) {
@@ -2476,7 +2476,7 @@ class SVGParserImpl implements SVGParser
                   obj.patternContentUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute patternContentUnits");
-               } 
+               }
                break;
             case patternTransform:
                obj.patternTransform = parseTransformList(val);
@@ -2528,7 +2528,7 @@ class SVGParserImpl implements SVGParser
       currentElement = obj;
    }
 
-   
+
    //=========================================================================
    // <mask> element
 
@@ -2565,7 +2565,7 @@ class SVGParserImpl implements SVGParser
                   obj.maskUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute maskUnits");
-               } 
+               }
                break;
             case maskContentUnits:
                if ("objectBoundingBox".equals(val)) {
@@ -2574,7 +2574,7 @@ class SVGParserImpl implements SVGParser
                   obj.maskContentUnitsAreUser = true;
                } else {
                   throw new SVGParseException("Invalid value for attribute maskContentUnits");
-               } 
+               }
                break;
             case x:
                obj.x = parseLength(val);
@@ -2608,13 +2608,12 @@ class SVGParserImpl implements SVGParser
    {
       for (int i=0; i<attributes.getLength(); i++)
       {
-         String  qname = attributes.getQName(i);
-         if (qname.equals("id") || qname.equals("xml:id"))
-         {
+         String qname = attributes.getQName(i);
+         if(qname.equals("data")){
+             obj.data = attributes.getValue(i);
+         } else if (qname.equals("id") || qname.equals("xml:id")) {
             obj.id = attributes.getValue(i).trim();
-            break;
-         }
-         else if (qname.equals("xml:space")) {
+         } else if (qname.equals("xml:space")) {
             String  val = attributes.getValue(i).trim();
             if ("default".equals(val)) {
                obj.spacePreserve = Boolean.FALSE;
@@ -3000,7 +2999,7 @@ class SVGParserImpl implements SVGParser
    {
       if (val.startsWith("url("))
       {
-         int  closeBracket = val.indexOf(")"); 
+         int  closeBracket = val.indexOf(")");
          if (closeBracket != -1)
          {
             String    href = val.substring(4, closeBracket).trim();
@@ -3257,7 +3256,7 @@ class SVGParserImpl implements SVGParser
       // Start by checking for the fixed size standard system font names (which we don't support)
       if ("|caption|icon|menu|message-box|small-caption|status-bar|".contains('|'+val+'|'))
          return;
-         
+
       // First part: style/variant/weight (opt - one or more)
       TextScanner  scan = new TextScanner(val);
       String       item;
@@ -3312,7 +3311,7 @@ class SVGParserImpl implements SVGParser
          }
          scan.skipWhitespace();
       }
-      
+
       // Third part: font family
       style.fontFamily = parseFontFamily(scan.restOfText());
 
@@ -3498,7 +3497,7 @@ class SVGParserImpl implements SVGParser
 
       if (scan.empty())
          return null;
-      
+
       Length dash = scan.nextLength();
       if (dash == null)
          return null;
@@ -3525,7 +3524,7 @@ class SVGParserImpl implements SVGParser
       // be treated as "none" ie a solid stroke.
       if (sum == 0f)
          return null;
-      
+
       return dashes.toArray(new Length[0]);
    }
 
@@ -3903,7 +3902,7 @@ class SVGParserImpl implements SVGParser
    //=========================================================================
    // Conditional processing (ie for <switch> element)
 
-   
+
    // Parse the attribute that declares the list of SVG features that must be
    // supported if we are to render this element
    private static Set<String>  parseRequiredFeatures(String val)
@@ -3938,7 +3937,7 @@ class SVGParserImpl implements SVGParser
       while (!scan.empty())
       {
          String language = scan.nextToken();
-         int  hyphenPos = language.indexOf('-'); 
+         int  hyphenPos = language.indexOf('-');
          if (hyphenPos != -1) {
             language = language.substring(0, hyphenPos);
          }
